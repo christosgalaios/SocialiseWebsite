@@ -3,44 +3,1156 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Socialise Events</title>
+  <title>Socialise. - Making friends shouldn't be hard</title>
+  <meta name="description" content="Socialising as an adult is harder than it should be. Socialise is here to change that. Discover events, make friends, and build real community." />
+  <meta name="theme-color" content="#FAFAF6" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Prevent flash of wrong theme -->
+  <script>
+    (function() {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* ——————————————————————————————
+       CSS Custom Properties — Light (default)
+    —————————————————————————————— */
+    :root {
+      --color-primary: #E2725B;
+      --color-primary-light: #d4604a;
+      --color-secondary: #2D5F5D;
+      --color-secondary-light: #3d8381;
+      --color-accent: #F4B942;
+      --color-bg: #FAFAF6;
+      --color-surface: rgba(0, 0, 0, 0.03);
+      --color-surface-hover: rgba(0, 0, 0, 0.06);
+      --color-border: rgba(0, 0, 0, 0.08);
+      --color-text: #1c1917;
+      --color-text-muted: #6b6560;
+      --color-text-dim: #a09a93;
+      --color-nav-bg: rgba(250, 250, 246, 0.85);
+      --color-card-spotlight: rgba(226, 114, 91, 0.06);
+      --color-card-hover-border: rgba(226, 114, 91, 0.25);
+      --color-card-hover-shadow: rgba(226, 114, 91, 0.08);
+      --color-ghost-hover-border: rgba(0, 0, 0, 0.15);
+      --color-ghost-hover-bg: rgba(0, 0, 0, 0.03);
+      --orb-opacity: 0.08;
+      --orb-3-opacity: 0.04;
+      --grain-opacity: 0.015;
+      --font-heading: 'Outfit', sans-serif;
+      --font-body: 'Quicksand', sans-serif;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      color-scheme: light;
+    }
+
+    /* ——————————————————————————————
+       Dark theme overrides
+    —————————————————————————————— */
+    [data-theme="dark"] {
+      --color-bg: #080810;
+      --color-primary-light: #f09885;
+      --color-surface: rgba(255, 255, 255, 0.04);
+      --color-surface-hover: rgba(255, 255, 255, 0.07);
+      --color-border: rgba(255, 255, 255, 0.08);
+      --color-text: #f0ece6;
+      --color-text-muted: #8a857e;
+      --color-text-dim: #5a564f;
+      --color-nav-bg: rgba(8, 8, 16, 0.8);
+      --color-card-spotlight: rgba(226, 114, 91, 0.06);
+      --color-card-hover-border: rgba(226, 114, 91, 0.2);
+      --color-card-hover-shadow: rgba(226, 114, 91, 0.08);
+      --color-ghost-hover-border: rgba(255, 255, 255, 0.2);
+      --color-ghost-hover-bg: rgba(255, 255, 255, 0.04);
+      --orb-opacity: 0.15;
+      --orb-3-opacity: 0.08;
+      --grain-opacity: 0.025;
+      color-scheme: dark;
+    }
+
+    /* ——————————————————————————————
+       Reset & Base
+    —————————————————————————————— */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; scroll-padding-top: 80px; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0f0f1a;
+      font-family: var(--font-body);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      transition: background 0.4s var(--ease-out), color 0.4s var(--ease-out);
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ——————————————————————————————
+       Noise Grain Overlay
+    —————————————————————————————— */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: var(--grain-opacity);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px 256px;
+    }
+
+    /* ——————————————————————————————
+       Navigation
+    —————————————————————————————— */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.4s var(--ease-out);
+    }
+    .nav.scrolled {
+      padding: 0.85rem 2rem;
+      background: var(--color-nav-bg);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .nav-logo {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      color: var(--color-text);
+    }
+    .nav-logo .s { color: var(--color-primary); }
+    .nav-logo .dot { color: var(--color-accent); }
+    .cap { color: var(--color-primary); }
+    .dot { color: var(--color-accent); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .nav-link {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      padding: 0.4rem 0.9rem;
+      border-radius: 100px;
+      transition: all 0.3s var(--ease-out);
+    }
+    .nav-link:hover {
+      color: var(--color-text);
+      background: var(--color-surface);
+    }
+    .nav-link.active {
+      color: var(--color-primary);
+      background: rgba(226, 114, 91, 0.08);
+    }
+    .menu-toggle {
+      display: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s var(--ease-out);
+      color: var(--color-text-muted);
+      padding: 0;
+      position: relative;
+      z-index: 102;
+    }
+    .menu-toggle:hover {
+      border-color: var(--color-card-hover-border);
+      color: var(--color-text);
+    }
+    .menu-toggle span {
+      display: block;
+      width: 16px;
+      height: 1.5px;
+      background: currentColor;
+      border-radius: 2px;
+      transition: all 0.3s var(--ease-out);
+      position: absolute;
+    }
+    .menu-toggle span:nth-child(1) { transform: translateY(-4px); }
+    .menu-toggle span:nth-child(3) { transform: translateY(4px); }
+    .menu-toggle.open span:nth-child(1) { transform: rotate(45deg); }
+    .menu-toggle.open span:nth-child(2) { opacity: 0; }
+    .menu-toggle.open span:nth-child(3) { transform: rotate(-45deg); }
+    .menu-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s var(--ease-out);
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .theme-toggle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s var(--ease-out);
+      color: var(--color-text-muted);
+      padding: 0;
+    }
+    .theme-toggle:hover {
+      border-color: var(--color-card-hover-border);
+      background: var(--color-surface-hover);
+      color: var(--color-text);
+    }
+    .theme-toggle .icon-sun,
+    .theme-toggle .icon-moon { display: none; }
+    :root .theme-toggle .icon-moon { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+    .nav-cta {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.6rem 1.5rem;
+      border-radius: 100px;
+      background: var(--color-primary);
       color: #fff;
+      transition: all 0.3s var(--ease-out);
+      border: none;
+      cursor: pointer;
+    }
+    .nav-cta:hover {
+      background: var(--color-primary-light);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(226, 114, 91, 0.3);
+    }
+
+    /* ——————————————————————————————
+       Floating Orbs (background)
+    —————————————————————————————— */
+    .orb-container {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      transition: opacity 0.6s var(--ease-out);
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: var(--orb-opacity);
+      transition: opacity 0.6s var(--ease-out);
+    }
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: var(--color-primary);
+      top: -10%;
+      right: -10%;
+      animation: float-1 20s ease-in-out infinite;
+    }
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: var(--color-secondary);
+      bottom: -5%;
+      left: -10%;
+      animation: float-2 25s ease-in-out infinite;
+    }
+    .orb-3 {
+      width: 350px;
+      height: 350px;
+      background: var(--color-accent);
+      top: 50%;
+      left: 40%;
+      opacity: var(--orb-3-opacity);
+      animation: float-3 18s ease-in-out infinite;
+    }
+    @keyframes float-1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(-80px, 60px) scale(1.1); }
+      66% { transform: translate(40px, -30px) scale(0.95); }
+    }
+    @keyframes float-2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(60px, -50px) scale(1.05); }
+      66% { transform: translate(-40px, 40px) scale(0.9); }
+    }
+    @keyframes float-3 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-60px, -40px) scale(1.15); }
+    }
+
+    /* ——————————————————————————————
+       Section shared styles
+    —————————————————————————————— */
+    section {
+      position: relative;
+      z-index: 1;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .section-label {
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-primary);
+      margin-bottom: 1rem;
+    }
+    .section-heading {
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--color-text);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ——————————————————————————————
+       Scroll reveal animations
+    —————————————————————————————— */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ——————————————————————————————
+       Hero Section
+    —————————————————————————————— */
+    .hero {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 2rem;
+      padding: 8rem 2rem 4rem;
+      position: relative;
     }
-    .logo { font-size: 3rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 1rem; }
-    .logo span { color: #7c3aed; }
-    .tagline { font-size: 1.2rem; color: #9ca3af; margin-bottom: 3rem; max-width: 500px; }
-    .cta-btn {
-      display: inline-block;
-      background: #7c3aed;
-      color: #fff;
-      text-decoration: none;
-      font-size: 1.1rem;
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      padding: 1rem 2.5rem;
-      border-radius: 50px;
-      transition: background 0.2s, transform 0.1s;
-      box-shadow: 0 4px 24px rgba(124,58,237,0.4);
+      color: var(--color-text-muted);
+      background: var(--color-surface);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 100px;
+      padding: 0.45rem 1.1rem;
+      margin-bottom: 2.5rem;
+      animation: hero-fade 1s var(--ease-out) 0.2s both;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
-    .cta-btn:hover { background: #6d28d9; transform: translateY(-2px); }
-    .footer { position: fixed; bottom: 1.5rem; color: #4b5563; font-size: 0.85rem; }
+    [data-theme="dark"] .hero-badge {
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: none;
+    }
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .hero-title {
+      font-family: var(--font-heading);
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 1.5rem;
+      animation: hero-fade 1s var(--ease-out) 0.4s both;
+    }
+    .hero-title-gradient {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary) 40%, var(--color-accent) 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: hero-fade 1s var(--ease-out) 0.4s both, gradient-shift 8s ease-in-out infinite;
+    }
+    @keyframes gradient-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .hero-sub {
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      font-weight: 500;
+      color: var(--color-text-muted);
+      max-width: 500px;
+      margin-bottom: 3rem;
+      animation: hero-fade 1s var(--ease-out) 0.6s both;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: hero-fade 1s var(--ease-out) 0.8s both;
+    }
+    @keyframes hero-fade {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .btn-primary {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.9rem 2.2rem;
+      border-radius: 100px;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-out);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(226, 114, 91, 0.3);
+    }
+    .btn-ghost {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.9rem 2.2rem;
+      border-radius: 100px;
+      background: transparent;
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+      cursor: pointer;
+      transition: all 0.3s var(--ease-out);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-ghost:hover {
+      color: var(--color-text);
+      border-color: var(--color-ghost-hover-border);
+      background: var(--color-ghost-hover-bg);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+    [data-theme="dark"] .btn-ghost:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      animation: hero-fade 1s var(--ease-out) 1.2s both;
+    }
+    .scroll-indicator span {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--color-text-dim);
+    }
+    .scroll-arrow {
+      width: 20px;
+      height: 20px;
+      border-right: 2px solid var(--color-text-dim);
+      border-bottom: 2px solid var(--color-text-dim);
+      transform: rotate(45deg);
+      animation: bounce-arrow 2s ease-in-out infinite;
+    }
+    @keyframes bounce-arrow {
+      0%, 100% { transform: rotate(45deg) translate(0, 0); opacity: 0.5; }
+      50% { transform: rotate(45deg) translate(5px, 5px); opacity: 1; }
+    }
+
+    /* ——————————————————————————————
+       Manifesto
+    —————————————————————————————— */
+    .manifesto {
+      padding: 8rem 2rem;
+      text-align: center;
+    }
+    .manifesto-text {
+      font-family: var(--font-heading);
+      font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.35;
+      max-width: 800px;
+      margin: 0 auto;
+      color: var(--color-text);
+    }
+    .manifesto-text .highlight {
+      color: var(--color-primary);
+    }
+    .manifesto-divider {
+      width: 80px;
+      height: 3px;
+      margin: 3rem auto 0;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    }
+
+    /* ——————————————————————————————
+       Features
+    —————————————————————————————— */
+    .features {
+      padding: 6rem 2rem 8rem;
+    }
+    .features-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+    .feature-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      padding: 2.2rem;
+      transition: all 0.4s var(--ease-out);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.4s var(--ease-out);
+      background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--color-card-spotlight), transparent 40%);
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover {
+      border-color: var(--color-card-hover-border);
+      transform: translateY(-4px);
+    }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1.25rem;
+    }
+    .feature-icon-events { background: rgba(226, 114, 91, 0.12); }
+    .feature-icon-meets { background: rgba(45, 95, 93, 0.15); }
+    .feature-icon-communities { background: rgba(244, 185, 66, 0.12); }
+    .feature-icon-mango { background: rgba(226, 114, 91, 0.1); }
+    .feature-card h3 {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      color: var(--color-text);
+    }
+    .feature-card p {
+      font-size: 0.95rem;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+
+    /* ——————————————————————————————
+       Team
+    —————————————————————————————— */
+    .team {
+      padding: 6rem 2rem 8rem;
+    }
+    .team-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    .team-grid {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .team-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 24px;
+      padding: 2.5rem 3rem;
+      text-align: center;
+      flex: 1 1 280px;
+      max-width: 520px;
+      transition: all 0.4s var(--ease-out);
+    }
+    .team-card:hover {
+      border-color: var(--color-card-hover-border);
+      transform: translateY(-4px);
+    }
+    .team-avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      margin: 0 auto 1.25rem;
+      object-fit: cover;
+      border: 3px solid var(--color-border);
+      transition: border-color 0.3s var(--ease-out);
+    }
+    .team-card:hover .team-avatar {
+      border-color: var(--color-card-hover-border);
+    }
+    .team-card h3 {
+      font-family: var(--font-heading);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+    .team-card .role {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+    .team-bio {
+      font-size: 0.88rem;
+      color: var(--color-text-muted);
+      line-height: 1.65;
+      margin-top: 1.1rem;
+      padding-top: 1.1rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* ——————————————————————————————
+       Contact
+    —————————————————————————————— */
+    .contact {
+      padding: 6rem 2rem 5rem;
+    }
+    .contact-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    .contact-grid {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .contact-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      padding: 2.2rem 2.8rem;
+      text-align: center;
+      flex: 1 1 280px;
+      max-width: 520px;
+      transition: all 0.4s var(--ease-out);
+      cursor: pointer;
+    }
+    .contact-card:hover {
+      border-color: var(--color-card-hover-border);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px var(--color-card-hover-shadow);
+    }
+    .contact-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(226, 114, 91, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin: 0 auto 1.25rem;
+    }
+    .contact-card h3 {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      user-select: text;
+      cursor: text;
+    }
+    .contact-card .email {
+      font-size: 0.95rem;
+      color: var(--color-primary);
+      font-weight: 600;
+      transition: color 0.2s;
+      user-select: text;
+      cursor: text;
+    }
+    .contact-card:hover .email { color: var(--color-primary-light); }
+    .contact-card .desc {
+      font-size: 0.85rem;
+      color: var(--color-text-dim);
+      margin-top: 0.5rem;
+      user-select: text;
+      cursor: text;
+    }
+
+    /* ——————————————————————————————
+       Footer
+    —————————————————————————————— */
+    .footer {
+      padding: 3rem 2rem;
+      text-align: center;
+      border-top: 1px solid var(--color-border);
+    }
+    .footer p {
+      font-size: 0.8rem;
+      color: var(--color-text-dim);
+      font-weight: 500;
+    }
+
+    /* ——————————————————————————————
+       Horizontal rule separator
+    —————————————————————————————— */
+    .section-divider {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      height: 1px;
+      background: var(--color-border);
+    }
+
+    /* ——————————————————————————————
+       Responsive
+    —————————————————————————————— */
+    @media (max-width: 768px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-title {
+        letter-spacing: -1px;
+      }
+      .team-card, .contact-card {
+        flex: 0 1 100%;
+      }
+      .nav {
+        padding: 1rem 1.25rem;
+      }
+      .nav.scrolled {
+        padding: 0.75rem 1.25rem;
+      }
+      .nav-links {
+        display: flex;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 260px;
+        background: var(--color-bg);
+        flex-direction: column;
+        align-items: stretch;
+        padding: 5rem 2rem 2rem;
+        gap: 0.25rem;
+        border-left: 1px solid var(--color-border);
+        transform: translateX(100%);
+        transition: transform 0.35s var(--ease-out);
+        z-index: 101;
+        box-shadow: -10px 0 40px rgba(0, 0, 0, 0.08);
+      }
+      .nav-links.open {
+        transform: translateX(0);
+      }
+      .nav-link {
+        font-size: 1rem;
+        padding: 0.65rem 1rem;
+        width: 100%;
+      }
+      .menu-toggle {
+        display: flex;
+      }
+      .menu-backdrop {
+        display: block;
+      }
+      .menu-backdrop.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+
+    /* ——————————————————————————————
+       Reduced motion
+    —————————————————————————————— */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .reveal {
+        opacity: 1;
+        transform: none;
+      }
+      html { scroll-behavior: auto; }
+    }
   </style>
 </head>
 <body>
-  <div class="logo">Social<span>ise</span></div>
-  <p class="tagline">The social events platform. Discover, connect, and experience events around you.</p>
-  <a href="https://app.socialiseevents.co.uk" class="cta-btn">Open the App</a>
-  <p class="footer">2026 Socialise Events</p>
+
+  <!-- Background Orbs -->
+  <div class="orb-container" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="#" class="nav-logo"><span class="s">S</span>ocialise<span class="dot">.</span></a>
+    <div class="nav-links">
+      <a href="#about" class="nav-link">About</a>
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#team" class="nav-link">Team</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </div>
+    <div class="nav-right">
+      <button class="theme-toggle" aria-label="Toggle dark mode" type="button">
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <a href="https://app.socialiseevents.co.uk" class="nav-cta">Open App</a>
+      <button class="menu-toggle" aria-label="Toggle menu" type="button">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="menu-backdrop"></div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Space for everyone
+    </div>
+    <h1 class="hero-title">
+      <span class="hero-title-gradient">Making friends</span><br />shouldn't be hard<span class="dot">.</span>
+    </h1>
+    <p class="hero-sub">Socialising as an adult is harder than it should be. We're here to change that.</p>
+    <div class="hero-actions">
+      <a href="https://app.socialiseevents.co.uk" class="btn-primary">
+        Open the App
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#about" class="btn-ghost">
+        Learn more
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10m0 0l-4-4m4 4l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="scroll-indicator" aria-hidden="true">
+      <span>Scroll</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- Manifesto -->
+  <section class="manifesto" id="about">
+    <div class="container">
+      <p class="manifesto-text reveal">
+        <span class="cap">S</span>omewhere along the way, making friends got <span class="highlight">complicated</span>.<br />
+        We built Socialise so it doesn't have to be<span class="dot">.</span>
+      </p>
+      <div class="manifesto-divider reveal reveal-delay-1"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="features-header">
+        <p class="section-label reveal">What we do</p>
+        <h2 class="section-heading reveal reveal-delay-1"><span class="cap">E</span>verything you need<br />to get out there<span class="dot">.</span></h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon feature-icon-events">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M8 2v3M16 2v3M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke="#E2725B" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="16" r="2" fill="#E2725B"/></svg>
+          </div>
+          <h3>Discover Events<span class="dot">.</span></h3>
+          <p>Browse a curated feed of local happenings, from cultural nights and live music to sports and chill hangouts. Filter by vibe, not just category.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon feature-icon-meets">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#2D5F5D" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#2D5F5D" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#2D5F5D" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Micro-Meets<span class="dot">.</span></h3>
+          <p>Get matched into small group hangouts of 4&ndash;6 people who share your interests. No awkwardness, just good food and great conversation.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-3">
+          <div class="feature-icon feature-icon-communities">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="#F4B942" stroke-width="1.5" stroke-linecap="round"/><path d="M8 9h8M8 13h5" stroke="#F4B942" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Communities<span class="dot">.</span></h3>
+          <p>Join groups built around the things you love. Share moments, plan meetups, and stay connected with people who get you.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-4">
+          <div class="feature-icon feature-icon-mango">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7v1a4 4 0 01-4 4H7a4 4 0 01-4-4v-1a7 7 0 017-7h1V5.73A2 2 0 0112 2z" stroke="#E2725B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="13" r="1" fill="#E2725B"/><circle cx="15" cy="13" r="1" fill="#E2725B"/><path d="M10 16h4" stroke="#E2725B" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Meet MangoAI<span class="dot">.</span></h3>
+          <p>Your personal assistant inside Socialise. MangoAI helps you find events, suggests people to meet, and keeps your social life effortlessly on track.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- Team -->
+  <section class="team" id="team">
+    <div class="container">
+      <div class="team-header">
+        <p class="section-label reveal">The team</p>
+        <h2 class="section-heading reveal reveal-delay-1"><span class="cap">W</span>e met at an event<span class="dot">,</span><br />then we built this<span class="dot">.</span></h2>
+      </div>
+      <div class="team-grid">
+        <div class="team-card reveal reveal-delay-2">
+          <img src="assets/ben.png" alt="Ben" class="team-avatar" />
+          <h3>Ben<span class="dot">.</span></h3>
+          <p class="role">Co-founder</p>
+          <p class="team-bio"><em>"The one who talks to everyone. Ben grew a community meetup to over 3,000 members because he genuinely loves bringing people together. He started Socialise to help everyone find that feeling of belonging."</em></p>
+        </div>
+        <div class="team-card reveal reveal-delay-3">
+          <img src="assets/chris.png" alt="Chris" class="team-avatar" />
+          <h3>Chris<span class="dot">.</span></h3>
+          <p class="role">Co-founder</p>
+          <p class="team-bio"><em>"The one behind the tech. Chris brings years of game development experience to build the technology that powers Socialise. Loves a 'deep' conversation, a 'dad' joke, and making sure the app feels as human as the people using it."</em></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- Contact -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="contact-header">
+        <p class="section-label reveal">Get in touch</p>
+        <h2 class="section-heading reveal reveal-delay-1"><span class="cap">J</span>oin the movement<span class="dot">.</span></h2>
+        <p class="section-sub reveal reveal-delay-2" style="color:var(--color-text-muted);font-size:1.05rem;max-width:480px;margin:0 auto;">Starting in Bristol, growing across the UK, and eventually going worldwide. Get involved early.</p>
+      </div>
+      <div class="contact-grid">
+        <a href="mailto:hello@socialiseevents.co.uk" class="contact-card reveal reveal-delay-2">
+          <div class="contact-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="3" stroke="#E2725B" stroke-width="1.5"/><path d="M2 7l10 7 10-7" stroke="#E2725B" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Business Enquiries<span class="dot">.</span></h3>
+          <p class="email">hello@socialiseevents.co.uk</p>
+          <p class="desc">Partnerships, press, and collaborations</p>
+        </a>
+        <a href="mailto:support@socialiseevents.co.uk" class="contact-card reveal reveal-delay-3">
+          <div class="contact-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#E2725B" stroke-width="1.5"/><path d="M9 9a3 3 0 015.12 1c0 2-3.12 2-3.12 4" stroke="#E2725B" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="17" r="0.5" fill="#E2725B" stroke="#E2725B" stroke-width="0.5"/></svg>
+          </div>
+          <h3>Support<span class="dot">.</span></h3>
+          <p class="email">support@socialiseevents.co.uk</p>
+          <p class="desc">Help, feedback, and bug reports</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2026 Socialise Events</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    /* ——————————————————————————————
+       Theme Toggle
+    —————————————————————————————— */
+    (function () {
+      var btn = document.querySelector('.theme-toggle');
+      btn.addEventListener('click', function () {
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (isDark) {
+          document.documentElement.removeAttribute('data-theme');
+          localStorage.setItem('theme', 'light');
+          document.querySelector('meta[name="theme-color"]').content = '#FAFAF6';
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          localStorage.setItem('theme', 'dark');
+          document.querySelector('meta[name="theme-color"]').content = '#080810';
+        }
+      });
+    })();
+
+    /* ——————————————————————————————
+       Scroll Reveal (Intersection Observer)
+    —————————————————————————————— */
+    (function () {
+      var reveals = document.querySelectorAll('.reveal');
+      if (!reveals.length) return;
+
+      var observer = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+      );
+
+      reveals.forEach(function (el) { observer.observe(el); });
+    })();
+
+    /* ——————————————————————————————
+       Nav scroll effect
+    —————————————————————————————— */
+    (function () {
+      var nav = document.querySelector('.nav');
+      var navLinks = document.querySelectorAll('.nav-link');
+      var sections = Array.from(navLinks).map(function (link) {
+        return document.querySelector(link.getAttribute('href'));
+      });
+      var ticking = false;
+
+      window.addEventListener('scroll', function () {
+        if (!ticking) {
+          requestAnimationFrame(function () {
+            if (window.scrollY > 60) {
+              nav.classList.add('scrolled');
+            } else {
+              nav.classList.remove('scrolled');
+            }
+            var current = '';
+            for (var i = sections.length - 1; i >= 0; i--) {
+              if (sections[i] && sections[i].getBoundingClientRect().top <= 150) {
+                current = sections[i].id;
+                break;
+              }
+            }
+            navLinks.forEach(function (link) {
+              if (link.getAttribute('href') === '#' + current) {
+                link.classList.add('active');
+              } else {
+                link.classList.remove('active');
+              }
+            });
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+    })();
+
+    /* ——————————————————————————————
+       Feature card spotlight effect
+    —————————————————————————————— */
+    (function () {
+      var cards = document.querySelectorAll('.feature-card');
+      cards.forEach(function (card) {
+        card.addEventListener('mousemove', function (e) {
+          var rect = card.getBoundingClientRect();
+          card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
+          card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
+        });
+      });
+    })();
+
+    /* ——————————————————————————————
+       Mobile menu toggle
+    —————————————————————————————— */
+    (function () {
+      var toggle = document.querySelector('.menu-toggle');
+      var navLinks = document.querySelector('.nav-links');
+      var backdrop = document.querySelector('.menu-backdrop');
+
+      function closeMenu() {
+        toggle.classList.remove('open');
+        navLinks.classList.remove('open');
+        backdrop.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      toggle.addEventListener('click', function () {
+        var isOpen = navLinks.classList.contains('open');
+        if (isOpen) {
+          closeMenu();
+        } else {
+          toggle.classList.add('open');
+          navLinks.classList.add('open');
+          backdrop.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+
+      backdrop.addEventListener('click', closeMenu);
+
+      navLinks.querySelectorAll('.nav-link').forEach(function (link) {
+        link.addEventListener('click', closeMenu);
+      });
+    })();
+
+    /* ——————————————————————————————
+       Smooth scroll for anchor links
+    —————————————————————————————— */
+    document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+      anchor.addEventListener('click', function (e) {
+        var target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
 </body>
 </html>
