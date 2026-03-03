@@ -75,7 +75,7 @@ section                        z-index: 1
 
 ### External Links
 
-- App: `https://app.socialiseevents.co.uk`
+- App: `https://app.socialise.events`
 - Business email: `hello@socialiseevents.co.uk`
 - Support email: `support@socialiseevents.co.uk`
 
