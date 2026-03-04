@@ -79,7 +79,7 @@
        Reset & Base
     —————————————————————————————— */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; scroll-padding-top: 80px; scroll-snap-type: y mandatory; }
+    html { scroll-behavior: auto; -webkit-font-smoothing: antialiased; scroll-padding-top: 80px; }
     body {
       font-family: var(--font-body);
       background: var(--color-bg);
@@ -328,7 +328,6 @@
     section {
       position: relative;
       z-index: 1;
-      scroll-snap-align: start;
       min-height: 100svh;
       display: flex;
       flex-direction: column;
@@ -763,7 +762,6 @@
       padding: 3rem 2rem;
       text-align: center;
       border-top: 1px solid var(--color-border);
-      scroll-snap-align: start;
     }
     .footer p {
       font-size: 0.8rem;
@@ -775,11 +773,7 @@
        Responsive
     —————————————————————————————— */
     @media (max-width: 768px) {
-      html {
-        scroll-snap-type: none;
-      }
       section {
-        scroll-snap-align: none;
         min-height: auto;
         display: block;
       }
@@ -789,9 +783,6 @@
         align-items: center;
         justify-content: center;
         min-height: 100dvh;
-      }
-      .footer {
-        scroll-snap-align: none;
       }
       .features-grid {
         grid-template-columns: 1fr;
@@ -864,9 +855,7 @@
         opacity: 1;
         transform: none;
       }
-      html { scroll-behavior: auto; scroll-snap-type: none; }
-      section { scroll-snap-align: none; }
-      .footer { scroll-snap-align: none; }
+      html { scroll-behavior: auto; }
     }
   </style>
 </head>
@@ -1168,17 +1157,101 @@
     })();
 
     /* ——————————————————————————————
-       Smooth scroll for anchor links
+       Magnetic Scroll
     —————————————————————————————— */
-    document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
-      anchor.addEventListener('click', function (e) {
-        var target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          e.preventDefault();
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    (function () {
+      var DURATION = 950;
+      var isMobile = window.matchMedia('(max-width: 768px)').matches;
+      var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var sections = Array.from(document.querySelectorAll('section'));
+      var isAnimating = false;
+      var lastWheel = 0;
+      var currentIdx = 0;
+
+      // Ease-in-out quint — very silky on both approach and settle
+      function ease(t) {
+        return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2;
+      }
+
+      function getSectionTop(section) {
+        return section.getBoundingClientRect().top + window.scrollY;
+      }
+
+      function getNearestIdx() {
+        var scrollY = window.scrollY;
+        var best = 0, bestDist = Infinity;
+        sections.forEach(function (s, i) {
+          var dist = Math.abs(getSectionTop(s) - scrollY);
+          if (dist < bestDist) { bestDist = dist; best = i; }
+        });
+        return best;
+      }
+
+      function animateTo(idx) {
+        if (idx < 0 || idx >= sections.length || isAnimating) return;
+        isAnimating = true;
+        currentIdx = idx;
+
+        var startY = window.scrollY;
+        var targetY = getSectionTop(sections[idx]);
+        var diff = targetY - startY;
+        var startTime = null;
+
+        if (Math.abs(diff) < 2) { isAnimating = false; return; }
+
+        function step(ts) {
+          if (!startTime) startTime = ts;
+          var progress = Math.min((ts - startTime) / DURATION, 1);
+          window.scrollTo(0, startY + diff * ease(progress));
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            window.scrollTo(0, targetY);
+            isAnimating = false;
+          }
         }
+        requestAnimationFrame(step);
+      }
+
+      function navigate(dir) {
+        if (isAnimating) return;
+        currentIdx = getNearestIdx();
+        animateTo(currentIdx + dir);
+      }
+
+      // Anchor links — works on all devices
+      document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+        anchor.addEventListener('click', function (e) {
+          var target = document.querySelector(this.getAttribute('href'));
+          if (!target) return;
+          e.preventDefault();
+          if (reducedMotion || isMobile) {
+            target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+            return;
+          }
+          var idx = sections.indexOf(target);
+          if (idx !== -1) animateTo(idx);
+          else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
       });
-    });
+
+      // Desktop-only: wheel + keyboard
+      if (isMobile || reducedMotion) return;
+
+      window.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        var now = Date.now();
+        if (isAnimating || now - lastWheel < 80) return;
+        lastWheel = now;
+        navigate(e.deltaY > 0 ? 1 : -1);
+      }, { passive: false });
+
+      window.addEventListener('keydown', function (e) {
+        var dir = { ArrowDown: 1, PageDown: 1, ArrowUp: -1, PageUp: -1 }[e.key];
+        if (e.key === ' ') { e.preventDefault(); navigate(1); return; }
+        if (dir !== undefined) { e.preventDefault(); navigate(dir); }
+      });
+    })();
   </script>
 </body>
 </html>
