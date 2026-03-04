@@ -79,7 +79,7 @@
        Reset & Base
     —————————————————————————————— */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; scroll-padding-top: 80px; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; scroll-padding-top: 80px; scroll-snap-type: y mandatory; }
     body {
       font-family: var(--font-body);
       background: var(--color-bg);
@@ -328,6 +328,11 @@
     section {
       position: relative;
       z-index: 1;
+      scroll-snap-align: start;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
     .container {
       max-width: 1100px;
@@ -533,7 +538,7 @@
        Manifesto
     —————————————————————————————— */
     .manifesto {
-      padding: 8rem 2rem;
+      padding: 5rem 2rem;
       text-align: center;
     }
     .manifesto-text {
@@ -560,11 +565,11 @@
        Features
     —————————————————————————————— */
     .features {
-      padding: 6rem 2rem 8rem;
+      padding: 4rem 2rem;
     }
     .features-header {
       text-align: center;
-      margin-bottom: 4rem;
+      margin-bottom: 2.5rem;
     }
     .features-grid {
       display: grid;
@@ -625,11 +630,11 @@
        Team
     —————————————————————————————— */
     .team {
-      padding: 6rem 2rem 8rem;
+      padding: 4rem 2rem;
     }
     .team-header {
       text-align: center;
-      margin-bottom: 4rem;
+      margin-bottom: 2.5rem;
     }
     .team-grid {
       display: flex;
@@ -687,11 +692,11 @@
        Contact
     —————————————————————————————— */
     .contact {
-      padding: 6rem 2rem 5rem;
+      padding: 4rem 2rem;
     }
     .contact-header {
       text-align: center;
-      margin-bottom: 4rem;
+      margin-bottom: 2.5rem;
     }
     .contact-grid {
       display: flex;
@@ -758,6 +763,7 @@
       padding: 3rem 2rem;
       text-align: center;
       border-top: 1px solid var(--color-border);
+      scroll-snap-align: start;
     }
     .footer p {
       font-size: 0.8rem;
@@ -766,25 +772,29 @@
     }
 
     /* ——————————————————————————————
-       Horizontal rule separator
-    —————————————————————————————— */
-    .section-divider {
-      width: 100%;
-      max-width: 1100px;
-      margin: 0 auto;
-      height: 1px;
-      background: var(--color-border);
-    }
-
-    /* ——————————————————————————————
        Responsive
     —————————————————————————————— */
     @media (max-width: 768px) {
-      .features-grid {
-        grid-template-columns: 1fr;
+      html {
+        scroll-snap-type: none;
+      }
+      section {
+        scroll-snap-align: none;
+        min-height: auto;
+        display: block;
       }
       .hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         min-height: 100dvh;
+      }
+      .footer {
+        scroll-snap-align: none;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
       }
       .hero-title {
         letter-spacing: -1px;
@@ -854,7 +864,9 @@
         opacity: 1;
         transform: none;
       }
-      html { scroll-behavior: auto; }
+      html { scroll-behavior: auto; scroll-snap-type: none; }
+      section { scroll-snap-align: none; }
+      .footer { scroll-snap-align: none; }
     }
   </style>
 </head>
@@ -926,8 +938,6 @@
     </div>
   </section>
 
-  <div class="section-divider"></div>
-
   <!-- Features -->
   <section class="features" id="features">
     <div class="container">
@@ -968,8 +978,6 @@
     </div>
   </section>
 
-  <div class="section-divider"></div>
-
   <!-- Team -->
   <section class="team" id="team">
     <div class="container">
@@ -993,8 +1001,6 @@
       </div>
     </div>
   </section>
-
-  <div class="section-divider"></div>
 
   <!-- Contact -->
   <section class="contact" id="contact">
