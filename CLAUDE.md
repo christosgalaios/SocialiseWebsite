@@ -1,6 +1,6 @@
 # Socialise. Marketing Website
 
-Static single-page marketing website for Socialise, a social events platform. Deployed via GitHub Pages at `www.socialiseevents.co.uk`.
+Static single-page marketing website for Socialise, a social events platform. Deployed via GitHub Pages at `www.socialise.events`.
 
 ## Brand Identity
 
@@ -29,7 +29,7 @@ assets/chris.png                # Team member photo (Co-Founder)
 assets/hero-illustration.png    # Hero section illustration (Gemini-generated, ~8MB)
 assets/mango-kitten.png         # Mango mascot illustration (Gemini-generated, ~7MB)
 assets/community-event.png      # Community event scene (Gemini-generated, ~8MB)
-CNAME                           # GitHub Pages DNS (www.socialiseevents.co.uk)
+CNAME                           # GitHub Pages DNS (www.socialise.events)
 .claude/launch.json             # Dev server config (Node.js, port 3000)
 ```
 
@@ -126,8 +126,8 @@ section                        z-index: 1
 ### External Links
 
 - App: `https://app.socialise.events`
-- Business email: `hello@socialiseevents.co.uk`
-- Support email: `support@socialiseevents.co.uk`
+- Business email: `hello@socialise.events`
+- Support email: `support@socialise.events`
 
 ## Testing
 
