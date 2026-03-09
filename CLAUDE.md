@@ -2,13 +2,35 @@
 
 Static single-page marketing website for Socialise, a social events platform. Deployed via GitHub Pages at `www.socialiseevents.co.uk`.
 
+## Brand Identity
+
+- **Logo**: **S**ocialise**.** — the "S" is terracotta, the "." is gold, rest is default text color
+- **Condensed mark**: "S." (terracotta S + gold dot)
+- **Brand accent utilities**: `.brand-s` (terracotta) and `.brand-dot` (gold) are used on key headings to reinforce the logo motif
+- **Colors**: Terracotta `#E2725B`, Teal `#2D5F5D`, Gold `#F4B942`, Paper `#F9F7F2`
+- **Fonts**: Outfit (headings), Quicksand (body)
+- **Tone**: Warm, wholesome, human — NOT corporate, NOT "AI-matched intimate dinners"
+
+## Product Context (important for copy)
+
+- Socialise is about **wholesome social events**: pub nights, hikes, board games, social deduction, speed friendships, walks, and more
+- There is **NO matching algorithm** — the app suggests events based on your interests and learns from you
+- **MangoAI** is the mascot AND personal AI assistant — users can say things like "I fancy a walk this weekend" and Mango finds events
+- **Micro-Meets** are small-group hangouts (4-6 people) at curated venues — NOT dinner-focused, NOT "intimate"
+- **Tribes** are interest-based communities users can join
+- Starting in Bristol, UK
+
 ## Project Structure
 
 ```
-index.html          # Entire site: HTML, CSS (~830 lines), JS (~143 lines)
-assets/ben.png      # Team member photo
-assets/chris.png    # Team member photo
-CNAME               # GitHub Pages DNS (www.socialiseevents.co.uk)
+index.html                      # Entire site: HTML, CSS (~1100 lines), JS (~180 lines)
+assets/ben.png                  # Team member photo (Co-Founder)
+assets/chris.png                # Team member photo (Co-Founder)
+assets/hero-illustration.png    # Hero section illustration (Gemini-generated, ~8MB)
+assets/mango-kitten.png         # Mango mascot illustration (Gemini-generated, ~7MB)
+assets/community-event.png      # Community event scene (Gemini-generated, ~8MB)
+CNAME                           # GitHub Pages DNS (www.socialiseevents.co.uk)
+.claude/launch.json             # Dev server config (Node.js, port 3000)
 ```
 
 No build tools, frameworks, or npm packages. Pure vanilla HTML/CSS/JS.
@@ -19,13 +41,16 @@ No build tools, frameworks, or npm packages. Pure vanilla HTML/CSS/JS.
 
 | Section | Element | ID | Key Classes |
 |---------|---------|-----|-------------|
-| Navigation | `<nav>` | — | `.nav`, `.nav-links`, `.nav-right`, `.menu-toggle`, `.menu-backdrop` |
-| Hero | `<section>` | `#hero` | `.hero`, `.hero-badge`, `.hero-title`, `.hero-title-gradient`, `.hero-actions` |
-| Manifesto | `<section>` | `#about` | `.manifesto`, `.manifesto-text` |
-| Features | `<section>` | `#features` | `.features`, `.features-grid`, `.feature-card` |
-| Team | `<section>` | `#team` | `.team`, `.team-grid`, `.team-card` |
+| Navigation | `<nav>` | — | `.nav`, `.nav-inner`, `.nav-logo`, `.nav-links`, `.nav-right`, `.menu-toggle`, `.menu-backdrop` |
+| Hero | `<section>` | `#hero` | `.hero`, `.hero-grid`, `.hero-badge`, `.hero-title`, `.hero-title-gradient`, `.hero-actions`, `.hero-visual`, `.hero-image-float`, `.hero-social-proof` |
+| About | `<section>` | `#about` | `.about`, `.about-inner`, `.about-text` |
+| How It Works | `<section>` | — | `.how-it-works`, `.steps-indicators`, `.step-indicator`, `.steps-grid`, `.step-card`, `.step-icon`, `.step-number` |
+| Features | `<section>` | `#features` | `.features`, `.features-grid`, `.feature-card`, `.feature-icon` |
+| Spotlight | `<section>` | — | `.spotlight`, `.spotlight-grid`, `.spotlight-image`, `.spotlight-content`, `.spotlight-benefits` |
+| Team | `<section>` | `#team` | `.team`, `.team-grid`, `.team-card`, `.team-bio-overlay`, `.team-bio-text` |
+| CTA | `<section>` | — | `.cta`, `.cta-inner`, `.cta-mango` |
 | Contact | `<section>` | `#contact` | `.contact`, `.contact-grid`, `.contact-card` |
-| Footer | `<footer>` | — | `.footer` |
+| Footer | `<footer>` | — | `.footer`, `.footer-content`, `.footer-logo` |
 
 Background orbs: `.orb-container` > `.orb-1`, `.orb-2`, `.orb-3` (decorative blurred circles).
 
@@ -33,30 +58,52 @@ Background orbs: `.orb-container` > `.orb-1`, `.orb-2`, `.orb-3` (decorative blu
 
 Themes controlled via `[data-theme="dark"]` on `<html>`. Key variables:
 
-- `--color-primary: #E2725B` (coral), `--color-secondary: #2D5F5D` (teal), `--color-accent: #F4B942` (gold)
-- `--color-bg`: page background (`#FAFAF6` light, `#080810` dark)
+- `--color-primary: #E2725B` (terracotta), `--color-secondary: #2D5F5D` (teal), `--color-accent: #F4B942` (gold)
+- `--color-bg`: page background (`#F9F7F2` light, `#0c0c14` dark)
+- `--color-bg-warm`: warm background for alternating sections (`#F5F0E8` light, `#12121c` dark)
 - `--color-nav-bg`: semi-transparent nav background (used with backdrop-filter via `::before` pseudo-element)
-- `--color-surface`, `--color-border`, `--color-text`, `--color-text-muted`
+- `--color-card-bg`, `--color-card-hover-border`, `--color-surface`, `--color-border`, `--color-text`, `--color-text-muted`
 - `--font-heading: 'Outfit'`, `--font-body: 'Quicksand'` (Google Fonts)
+- `--radius-sm: 12px`, `--radius-md: 20px`, `--radius-lg: 28px`, `--radius-xl: 36px`
 - `--ease-out: cubic-bezier(0.16, 1, 0.3, 1)`, `--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1)`
+
+### 21st.dev-Inspired Design Patterns
+
+These patterns were adapted from 21st.dev React components into vanilla CSS:
+
+- **Hero dot grid**: `radial-gradient` dots with `mask-image` radial fade (`.hero::before`)
+- **Step indicators**: Numbered circles connected by a horizontal line (`.steps-indicators::before`)
+- **Bounce card hover**: `transform: scale(0.97) rotate(-0.5deg)` with spring easing on feature cards, team cards, contact cards
+- **Team bio overlay**: `clip-path: circle()` reveal from avatar position on hover (`.team-bio-overlay`)
+- **Spotlight benefit cards**: Card-style list items with `translateX(4px)` hover slide
+- **CTA radial glow**: `radial-gradient` pseudo-element behind CTA content
+
+### Section Transitions
+
+Sections with different backgrounds use `clip-path: inset(-1px round 80px)` for soft rounded edges instead of hard lines. On mobile: `round 40px`.
+
+A parallax depth effect makes warm sections (how-it-works, spotlight, CTA) scroll at a slightly different rate, creating a floating panel feel.
 
 ### Responsive Breakpoint
 
 Single breakpoint: `@media (max-width: 768px)`:
-- Features grid collapses to 1 column
+- Hero grid, features grid, spotlight grid, team grid collapse to 1 column
 - Nav links become a 260px fixed side panel sliding from right
 - Hamburger menu toggle shown
+- Hero floating cards hidden on mobile
+- Step indicators hidden, inline step numbers shown instead
+- Section curve radius reduced from 80px to 40px
 - `@media (prefers-reduced-motion: reduce)` disables all animations
 
-### JavaScript (5 IIFEs)
+### JavaScript (7 IIFEs)
 
-1. **Theme Toggle** — Toggles `data-theme="dark"`, persists in `localStorage('theme')`, updates `<meta name="theme-color">`
+1. **Theme Toggle** — Toggles `data-theme="dark"`, persists in `localStorage('theme')`, updates `<meta name="theme-color">`, swaps sun/moon icons
 2. **Scroll Reveal** — `IntersectionObserver` adds `.visible` to `.reveal` elements (supports `.reveal-delay-1` through `-4`)
-3. **Nav Scroll Effect** — Adds `.scrolled` to `.nav` when `scrollY > 60`; highlights active `.nav-link` based on visible section
-4. **Feature Card Spotlight** — Tracks mouse position via `--mouse-x`/`--mouse-y` CSS vars on `.feature-card` for radial gradient glow
-5. **Mobile Menu Toggle** — Toggles `.open` on `.menu-toggle`, `.nav-links`, `.menu-backdrop`; locks body scroll
-
-Plus smooth anchor scroll (`scrollIntoView`) on all `a[href^="#"]`.
+3. **Parallax Depth** — Warm sections scroll at slightly different rate via `translateY` transform, using `requestAnimationFrame`. Respects `prefers-reduced-motion`.
+4. **Nav Scroll Effect** — Adds `.scrolled` to `.nav` when `scrollY > 60`; highlights active `.nav-link` based on visible section
+5. **Feature Card Spotlight** — Tracks mouse position via `--mouse-x`/`--mouse-y` CSS vars on `.feature-card` for radial gradient glow
+6. **Mobile Menu Toggle** — Toggles `.open` on `.menu-toggle`, `.nav-links`, `.menu-backdrop`; locks body scroll
+7. **Smooth Scroll** — `scrollIntoView` on all `a[href^="#"]`
 
 ### Z-Index Stacking
 
@@ -67,6 +114,9 @@ body::after (grain overlay)    z-index: 9999  pointer-events: none
   .nav-links (mobile panel)    z-index: 101
   .menu-backdrop               z-index: 100
   .nav::before (blur effect)   z-index: -1
+.team-bio-overlay              z-index: 3
+.team-card img                 z-index: 2
+.team-name, .team-role         z-index: 1
 section                        z-index: 1
 .orb-container                 z-index: 0
 ```
@@ -82,9 +132,11 @@ section                        z-index: 1
 ## Testing
 
 ```bash
-# Local preview
+# Local preview (preferred — uses .claude/launch.json)
+# Preview tools will auto-start on port 3000
+
+# Manual alternative
 python -m http.server 8000
-# Then visit http://localhost:8000
 ```
 
 Key things to verify:
@@ -94,3 +146,9 @@ Key things to verify:
 - Feature card spotlight follows mouse cursor
 - Nav blur effect appears after scrolling 60px
 - Side menu panel and backdrop render above all page content when scrolled
+- Hero floating cards animate and display correctly on desktop
+- Illustrations load in hero, spotlight, and CTA sections
+- Team card bio overlay reveals on hover (clip-path circle animation)
+- Section transitions are smooth with rounded edges and parallax
+- Bouncy hover effect on feature, team, and contact cards
+- Brand accent S and dot visible in hero title and section headings
