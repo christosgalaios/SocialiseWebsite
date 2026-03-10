@@ -582,15 +582,20 @@
       object-fit: cover;
       object-position: center;
       opacity: 0;
-      transform: scale(1.15);
-      transition: opacity 1.2s cubic-bezier(0.645, 0.045, 0.355, 1.0),
-                  transform 6s ease-out;
+      transform: scale(1.25) translate(2%, 1%);
+      transition: opacity 1.4s cubic-bezier(0.645, 0.045, 0.355, 1.0),
+                  transform 8s ease-out;
       will-change: opacity, transform;
     }
 
+    /* Each slide drifts in a different direction for variety */
+    .hero-slideshow img:nth-child(1) { transform: scale(1.25) translate(2%, 1%); }
+    .hero-slideshow img:nth-child(2) { transform: scale(1.25) translate(-2%, 1%); }
+    .hero-slideshow img:nth-child(3) { transform: scale(1.25) translate(1%, -2%); }
+
     .hero-slideshow img.active {
       opacity: 1;
-      transform: scale(1.12);
+      transform: scale(1.12) translate(0%, 0%);
     }
 
     /* Slide indicator dots — 21st.dev expanding pill pattern */
