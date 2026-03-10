@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "env": {}
+    },
+    "magic": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@21st-dev/magic@latest"],
+      "env": {
+        "API_KEY": "${TWENTYFIRST_API_KEY}"
+      }
+    },
+    "nano-banana": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "nano-banana-mcp"],
+      "env": {
+        "GEMINI_API_KEY": "${GEMINI_API_KEY}"
+      }
+    },
+    "stitch": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@_davideast/stitch-mcp", "proxy"],
+      "env": {
+        "GOOGLE_CLOUD_PROJECT": "${STITCH_GOOGLE_CLOUD_PROJECT}"
+      }
+    }
+  }
+}

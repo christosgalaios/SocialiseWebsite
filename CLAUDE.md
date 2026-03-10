@@ -1,5 +1,52 @@
 # Socialise. Marketing Website
 
+## Claude Code Tooling
+
+This project ships project-level skills and MCP servers so any cloud or remote session has the same capabilities as the local dev environment.
+
+### MCP Servers (`.mcp.json`)
+
+| Server | Package | Purpose | Requires |
+|--------|---------|---------|---------|
+| `context7` | `@upstash/context7-mcp` | Library/framework docs lookup | — |
+| `magic` | `@21st-dev/magic` | 21st.dev reactive component search & generation | `TWENTYFIRST_API_KEY` |
+| `nano-banana` | `nano-banana-mcp` | Gemini-powered image generation & editing | `GEMINI_API_KEY` |
+| `stitch` | `@_davideast/stitch-mcp` | Google Stitch UI mockup generator | `STITCH_GOOGLE_CLOUD_PROJECT` |
+
+> **Cloud setup:** Run `bash .claude/setup.sh` once per new environment to verify env vars and pre-warm packages.
+>
+> **Local note:** `supabase` MCP is in the global user config but omitted here — this is a static site with no DB.
+
+### Project Skills (`.claude/skills/`)
+
+Invoke skills with `/skill-name` or by describing the task — Claude auto-selects the right one.
+
+#### UI Pipeline
+| Skill | Trigger |
+|-------|---------|
+| `design-to-code` | "build", "design", "create a section", "new component", `/design` |
+| `ui-ux-pro-max` | Design review, choosing colours/fonts, UX feedback |
+
+#### Marketing & Copy
+| Skill | Trigger |
+|-------|---------|
+| `copywriting` | Write/improve page copy, headlines, CTAs, value props |
+| `page-cro` | Conversion rate issues, landing page feedback, "why isn't this converting" |
+| `ai-seo` | Optimize for AI search (ChatGPT, Perplexity, Gemini), answer engine optimization |
+| `seo-audit` | Technical SEO review, meta tags, Core Web Vitals, rankings |
+| `content-strategy` | "what should I write about", blog planning, topic clusters |
+| `analytics-tracking` | GA4, event tracking, UTM parameters, conversion measurement |
+| `schema-markup` | JSON-LD structured data, rich snippets, FAQ schema |
+| `ab-test-setup` | A/B tests, split tests, hypothesis design |
+
+### Skill & MCP Compatibility Notes
+
+- All skills are pure markdown — they work in any Claude Code environment with no install step.
+- All MCP servers use `npx` — they require Node.js ≥ 18 and internet access to download packages.
+- `context7` has no API key requirement and will work out of the box.
+- `magic`, `nano-banana`, and `stitch` require env vars (see setup script above). Without them, those MCP tools will fail silently — Claude will fall back to writing components manually.
+- The `design-to-code` skill orchestrates `stitch` + `nano-banana` + `ui-ux-pro-max` + `magic` in sequence. Skip phases whose MCP server isn't available.
+
 Static single-page marketing website for Socialise, a social events platform. Deployed via GitHub Pages at `www.socialise.events`.
 
 ## Brand Identity
