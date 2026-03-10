@@ -1277,9 +1277,117 @@
       .hero-title { font-size: 2rem; }
       .btn-primary, .btn-secondary { padding: 12px 24px; font-size: 0.9rem; }
     }
+
+    /* ——————————————————————————————
+       Mobile Performance Optimizations
+    —————————————————————————————— */
+
+    /* GPU-promote parallax sections on desktop only */
+    @media (min-width: 769px) {
+      .how-it-works, .spotlight, .cta {
+        will-change: transform;
+      }
+    }
+
+    /* Off-screen sections skip rendering until near viewport */
+    .features, .spotlight, .team, .cta, .contact {
+      content-visibility: auto;
+      contain-intrinsic-size: auto 800px;
+    }
+
+    @media (max-width: 768px) {
+      /* Kill the expensive grain overlay on mobile */
+      body::after { display: none; }
+
+      /* Drastically simplify orb rendering — remove blur, use opacity only */
+      .orb-1, .orb-2, .orb-3 {
+        filter: none;
+        opacity: 0.06;
+        background: transparent;
+        border-radius: 50%;
+      }
+      .orb-1 { background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%); }
+      .orb-2 { background: radial-gradient(circle, var(--color-secondary) 0%, transparent 70%); }
+      .orb-3 { background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%); }
+      [data-theme="dark"] .orb-1,
+      [data-theme="dark"] .orb-2,
+      [data-theme="dark"] .orb-3 { opacity: 0.04; }
+
+      /* Reduce nav backdrop-filter cost */
+      .nav::before {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      /* Remove clip-path on warm sections — very expensive on mobile */
+      .how-it-works,
+      .spotlight,
+      .cta { clip-path: none; border-radius: 0; }
+
+      /* Disable hover transforms that trigger compositing on touch */
+      .feature-card:hover,
+      .team-card:hover,
+      .contact-card:hover,
+      .step-card:hover {
+        transform: none;
+      }
+      .feature-card:hover .feature-icon,
+      .step-card:hover .step-icon {
+        transform: none;
+      }
+
+      /* Disable feature card spotlight gradient on mobile (no mouse anyway) */
+      .feature-card::before { display: none; }
+    }
+
+    /* ——————————————————————————————
+       Page Loading Screen
+    —————————————————————————————— */
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: var(--color-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .page-loader.loaded {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .page-loader-logo {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      color: var(--color-text);
+    }
+    .page-loader-logo .logo-s { color: var(--color-primary); }
+    .page-loader-logo .logo-dot { color: var(--color-accent); }
+    .page-loader-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--color-border);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: loader-spin 0.7s linear infinite;
+    }
+    @keyframes loader-spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
+  <!-- Page Loader — holds page until fonts + images are ready -->
+  <div class="page-loader" id="pageLoader">
+    <div class="page-loader-logo"><span class="logo-s">S</span>ocialise<span class="logo-dot">.</span></div>
+    <div class="page-loader-spinner"></div>
+  </div>
+
   <!-- Decorative Orbs -->
   <div class="orb-container">
     <div class="orb-1"></div>
@@ -1631,10 +1739,12 @@
     })();
 
     /* ——————————————————————————————
-       Parallax Depth — warm sections scroll slower
+       Parallax Depth — warm sections scroll slower (desktop only)
     —————————————————————————————— */
     (function() {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      // Skip parallax entirely on mobile — biggest scroll perf killer
+      if (window.innerWidth <= 768) return;
 
       var sections = document.querySelectorAll('.how-it-works, .spotlight, .cta');
       var ticking = false;
@@ -1643,11 +1753,8 @@
         var viewH = window.innerHeight;
         sections.forEach(function(section) {
           var rect = section.getBoundingClientRect();
-          // Only animate when section is near viewport
           if (rect.bottom < -200 || rect.top > viewH + 200) return;
-          // Progress: 0 = section entering bottom, 1 = section exiting top
           var progress = 1 - (rect.top + rect.height) / (viewH + rect.height);
-          // Subtle vertical shift: -20px to +20px (section lags behind scroll)
           var shift = (progress - 0.5) * -30;
           section.style.transform = 'translateY(' + shift.toFixed(1) + 'px)';
         });
@@ -1671,21 +1778,44 @@
       var nav = document.querySelector('.nav');
       var links = document.querySelectorAll('.nav-link');
       var sections = document.querySelectorAll('section[id]');
+      var ticking = false;
 
-      window.addEventListener('scroll', function() {
+      // Cache section positions — recalc on resize, not every scroll
+      var sectionData = [];
+      function cacheSectionPositions() {
+        sectionData = [];
+        sections.forEach(function(section) {
+          sectionData.push({
+            id: section.getAttribute('id'),
+            top: section.offsetTop,
+            height: section.offsetHeight
+          });
+        });
+      }
+      cacheSectionPositions();
+      window.addEventListener('resize', cacheSectionPositions);
+
+      function onScroll() {
         nav.classList.toggle('scrolled', window.scrollY > 60);
 
         var scrollPos = window.scrollY + 200;
-        sections.forEach(function(section) {
-          var top = section.offsetTop;
-          var height = section.offsetHeight;
-          var id = section.getAttribute('id');
-          if (scrollPos >= top && scrollPos < top + height) {
+        for (var i = 0; i < sectionData.length; i++) {
+          var s = sectionData[i];
+          if (scrollPos >= s.top && scrollPos < s.top + s.height) {
             links.forEach(function(link) {
-              link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+              link.classList.toggle('active', link.getAttribute('href') === '#' + s.id);
             });
+            break;
           }
-        });
+        }
+        ticking = false;
+      }
+
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          requestAnimationFrame(onScroll);
+          ticking = true;
+        }
       }, { passive: true });
     })();
 
@@ -1752,6 +1882,36 @@
             target.scrollIntoView({ behavior: 'smooth' });
           }
         });
+      });
+    })();
+
+    /* ——————————————————————————————
+       Page Loader — dismiss once fonts + key images are ready
+    —————————————————————————————— */
+    (function() {
+      var loader = document.getElementById('pageLoader');
+      if (!loader) return;
+
+      function dismiss() {
+        loader.classList.add('loaded');
+        // Remove from DOM after fade-out to free memory
+        setTimeout(function() { loader.remove(); }, 500);
+      }
+
+      // Wait for fonts + hero image, or bail after 3s max
+      var timeout = setTimeout(dismiss, 3000);
+
+      Promise.all([
+        document.fonts ? document.fonts.ready : Promise.resolve(),
+        new Promise(function(resolve) {
+          var hero = document.querySelector('.hero-image-wrapper img');
+          if (!hero || hero.complete) return resolve();
+          hero.addEventListener('load', resolve);
+          hero.addEventListener('error', resolve);
+        })
+      ]).then(function() {
+        clearTimeout(timeout);
+        dismiss();
       });
     })();
   </script>
