@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <!-- Preload hero image so it starts downloading before parser reaches the <img> -->
-  <link rel="preload" as="image" href="assets/hero-illustration.png" />
+  <link rel="preload" as="image" href="assets/hero-hiking.png" />
   <!-- Prefetch below-fold images during idle time -->
   <link rel="prefetch" as="image" href="assets/community-event.png" />
   <link rel="prefetch" as="image" href="assets/mango-kitten.png" />
@@ -561,6 +561,72 @@
       width: 100%;
       border-radius: var(--radius-xl);
       box-shadow: 0 24px 80px rgba(0,0,0,0.1);
+    }
+
+    /* Hero slideshow — 21st.dev-inspired crossfade with Ken Burns */
+    .hero-slideshow {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      overflow: visible;
+      perspective: 1000px;
+    }
+
+    .hero-slideshow img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      box-shadow: none;
+      opacity: 0;
+      transform: scale(1.03);
+      transition: opacity 1.2s cubic-bezier(0.645, 0.045, 0.355, 1.0),
+                  transform 6s ease-out;
+      will-change: opacity, transform;
+      /* Thin edge fade — keeps canonical image shape, just bleeds white edges away */
+      -webkit-mask-image: radial-gradient(ellipse 98% 98% at center, black 85%, transparent 100%);
+      mask-image: radial-gradient(ellipse 98% 98% at center, black 85%, transparent 100%);
+    }
+
+    /* Dark mode: slightly wider fade to catch cream edges against dark bg */
+    [data-theme="dark"] .hero-slideshow img {
+      -webkit-mask-image: radial-gradient(ellipse 96% 94% at center, black 78%, transparent 98%);
+      mask-image: radial-gradient(ellipse 96% 94% at center, black 78%, transparent 98%);
+    }
+
+    .hero-slideshow img.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Slide indicator dots — 21st.dev expanding pill pattern */
+    .hero-slide-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .hero-slide-dots button {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: none;
+      background: var(--color-border);
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.4s var(--ease-spring);
+    }
+
+    .hero-slide-dots button:hover {
+      background: var(--color-primary-light);
+    }
+
+    .hero-slide-dots button.active {
+      background: var(--color-primary);
+      width: 28px;
+      border-radius: 4px;
     }
 
     .hero-image-float {
@@ -1463,7 +1529,16 @@
         </div>
         <div class="hero-visual reveal reveal-delay-2">
           <div class="hero-image-wrapper">
-            <img src="assets/hero-illustration.png" alt="Friends enjoying social events together" loading="eager" fetchpriority="high" decoding="async" />
+            <div class="hero-slideshow" aria-label="Socialise event scenes">
+              <img src="assets/hero-hiking.png" alt="Friends hiking together on a scenic trail" class="active" loading="eager" fetchpriority="high" decoding="async" />
+              <img src="assets/hero-pub.png" alt="Friends laughing at a cozy pub" loading="lazy" decoding="async" />
+              <img src="assets/hero-boardgames.png" alt="Friends playing board games together" loading="lazy" decoding="async" />
+            </div>
+            <div class="hero-slide-dots" aria-label="Slideshow controls">
+              <button class="active" aria-label="Slide 1"></button>
+              <button aria-label="Slide 2"></button>
+              <button aria-label="Slide 3"></button>
+            </div>
             <div class="hero-image-float hero-float-1">
               <div class="hero-float-icon" style="background:rgba(226,114,91,0.1);">🎲</div>
               <div>
@@ -1906,6 +1981,52 @@
     })();
 
     /* ——————————————————————————————
+       Hero Image Slideshow
+    —————————————————————————————— */
+    (function() {
+      var slideshow = document.querySelector('.hero-slideshow');
+      if (!slideshow) return;
+      var slides = slideshow.querySelectorAll('img');
+      var dots = document.querySelectorAll('.hero-slide-dots button');
+      var current = 0;
+      var interval = 5000;
+      var timer;
+
+      function goTo(index) {
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = index;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+      }
+
+      function next() {
+        goTo((current + 1) % slides.length);
+      }
+
+      function startTimer() {
+        timer = setInterval(next, interval);
+      }
+
+      dots.forEach(function(dot, i) {
+        dot.addEventListener('click', function() {
+          clearInterval(timer);
+          goTo(i);
+          startTimer();
+        });
+      });
+
+      // Pause on hover
+      slideshow.addEventListener('mouseenter', function() { clearInterval(timer); });
+      slideshow.addEventListener('mouseleave', startTimer);
+
+      // Respect prefers-reduced-motion
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        startTimer();
+      }
+    })();
+
+    /* ——————————————————————————————
        Smooth Scroll for Anchor Links
     —————————————————————————————— */
     (function() {
@@ -1939,7 +2060,7 @@
       Promise.all([
         document.fonts ? document.fonts.ready : Promise.resolve(),
         new Promise(function(resolve) {
-          var hero = document.querySelector('.hero-image-wrapper img');
+          var hero = document.querySelector('.hero-slideshow img');
           if (!hero || hero.complete) return resolve();
           hero.addEventListener('load', resolve);
           hero.addEventListener('error', resolve);
