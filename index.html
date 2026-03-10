@@ -9,6 +9,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Preload hero image so it starts downloading before parser reaches the <img> -->
+  <link rel="preload" as="image" href="assets/hero-illustration.png" />
+  <!-- Prefetch below-fold images during idle time -->
+  <link rel="prefetch" as="image" href="assets/community-event.png" />
+  <link rel="prefetch" as="image" href="assets/mango-kitten.png" />
   <!-- Prevent flash of wrong theme -->
   <script>
     (function() {
@@ -79,7 +84,9 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html {
-      scroll-behavior: smooth;
+      /* scroll-behavior: smooth removed — handled by JS smooth scroll IIFE instead.
+         CSS smooth-scroll forces the browser to interpolate every scroll frame,
+         which compounds with parallax/reveal observers and causes jank on mobile. */
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
@@ -1295,6 +1302,12 @@
       contain-intrinsic-size: auto 800px;
     }
 
+    /* Layout isolation — tell browser each card is self-contained
+       so changes inside one card never trigger reflow/repaint of siblings */
+    .feature-card, .step-card, .team-card, .contact-card, .spotlight-benefits li {
+      contain: layout style paint;
+    }
+
     @media (max-width: 768px) {
       /* Kill the expensive grain overlay on mobile */
       body::after { display: none; }
@@ -1450,7 +1463,7 @@
         </div>
         <div class="hero-visual reveal reveal-delay-2">
           <div class="hero-image-wrapper">
-            <img src="assets/hero-illustration.png" alt="Friends enjoying social events together" loading="eager" />
+            <img src="assets/hero-illustration.png" alt="Friends enjoying social events together" loading="eager" fetchpriority="high" decoding="async" />
             <div class="hero-image-float hero-float-1">
               <div class="hero-float-icon" style="background:rgba(226,114,91,0.1);">🎲</div>
               <div>
@@ -1582,7 +1595,7 @@
     <div class="container">
       <div class="spotlight-grid">
         <div class="spotlight-image reveal">
-          <img src="assets/community-event.png" alt="Community event with people socialising outdoors" loading="lazy" />
+          <img src="assets/community-event.png" alt="Community event with people socialising outdoors" loading="lazy" decoding="async" />
         </div>
         <div class="spotlight-content reveal reveal-delay-2">
           <span class="section-label">Why Socialise?</span>
@@ -1618,7 +1631,7 @@
       </div>
       <div class="team-grid">
         <div class="team-card reveal reveal-delay-1">
-          <img src="assets/ben.png" alt="Ben — Co-Founder" loading="lazy" />
+          <img src="assets/ben.png" alt="Ben — Co-Founder" loading="lazy" decoding="async" />
           <h3 class="team-name">Ben</h3>
           <p class="team-role">Co-Founder</p>
           <div class="team-bio-overlay">
@@ -1626,7 +1639,7 @@
           </div>
         </div>
         <div class="team-card reveal reveal-delay-2">
-          <img src="assets/chris.png" alt="Chris — Co-Founder" loading="lazy" />
+          <img src="assets/chris.png" alt="Chris — Co-Founder" loading="lazy" decoding="async" />
           <h3 class="team-name">Chris</h3>
           <p class="team-role">Co-Founder</p>
           <div class="team-bio-overlay">
@@ -1642,7 +1655,7 @@
     <div class="container">
       <div class="cta-inner reveal">
         <div class="cta-mango">
-          <img src="assets/mango-kitten.png" alt="Mango the kitten" loading="lazy" />
+          <img src="assets/mango-kitten.png" alt="Mango the kitten" loading="lazy" decoding="async" />
         </div>
         <h2 class="section-title">Ready to <span class="brand-s">S</span>top <span class="brand-s">S</span>crolling and <span class="brand-s">S</span>tart <span class="brand-s">S</span>ocialising?</h2>
         <p class="section-subtitle">Join hundreds of people building real friendships. Mango's waiting for you.</p>
@@ -1723,19 +1736,41 @@
     })();
 
     /* ——————————————————————————————
-       Scroll Reveal
+       Scroll Reveal (with pre-warm + cleanup)
     —————————————————————————————— */
     (function() {
       var reveals = document.querySelectorAll('.reveal');
+
+      // Pre-warm observer: adds will-change BEFORE element enters viewport
+      // so the browser promotes it to a GPU layer ahead of the animation.
+      // rootMargin 200px means "start preparing when 200px below the fold."
+      var preWarm = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.style.willChange = 'transform, opacity';
+            preWarm.unobserve(entry.target);
+          }
+        });
+      }, { rootMargin: '0px 0px 200px 0px' });
+
+      // Main reveal observer: triggers the animation
       var observer = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
           if (entry.isIntersecting) {
             entry.target.classList.add('visible');
             observer.unobserve(entry.target);
+            // After animation completes, remove will-change to free GPU memory
+            setTimeout(function() {
+              entry.target.style.willChange = 'auto';
+            }, 900); // 700ms animation + small buffer
           }
         });
       }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-      reveals.forEach(function(el) { observer.observe(el); });
+
+      reveals.forEach(function(el) {
+        preWarm.observe(el);
+        observer.observe(el);
+      });
     })();
 
     /* ——————————————————————————————
