@@ -584,15 +584,25 @@
       transition: opacity 1.2s cubic-bezier(0.645, 0.045, 0.355, 1.0),
                   transform 6s ease-out;
       will-change: opacity, transform;
-      /* Thin edge fade — keeps canonical image shape, just bleeds white edges away */
-      -webkit-mask-image: radial-gradient(ellipse 98% 98% at center, black 85%, transparent 100%);
-      mask-image: radial-gradient(ellipse 98% 98% at center, black 85%, transparent 100%);
+      /* Rectangular mask — keeps image geometry, quick blend at edges */
+      -webkit-mask-image:
+        linear-gradient(to right,  transparent, black 4%, black 96%, transparent),
+        linear-gradient(to bottom, transparent, black 4%, black 96%, transparent);
+      mask-image:
+        linear-gradient(to right,  transparent, black 4%, black 96%, transparent),
+        linear-gradient(to bottom, transparent, black 4%, black 96%, transparent);
+      -webkit-mask-composite: source-in;
+      mask-composite: intersect;
     }
 
-    /* Dark mode: slightly wider fade to catch cream edges against dark bg */
+    /* Dark mode: slightly wider blend to catch cream painting edges */
     [data-theme="dark"] .hero-slideshow img {
-      -webkit-mask-image: radial-gradient(ellipse 96% 94% at center, black 78%, transparent 98%);
-      mask-image: radial-gradient(ellipse 96% 94% at center, black 78%, transparent 98%);
+      -webkit-mask-image:
+        linear-gradient(to right,  transparent, black 6%, black 94%, transparent),
+        linear-gradient(to bottom, transparent, black 6%, black 94%, transparent);
+      mask-image:
+        linear-gradient(to right,  transparent, black 6%, black 94%, transparent),
+        linear-gradient(to bottom, transparent, black 6%, black 94%, transparent);
     }
 
     .hero-slideshow img.active {
