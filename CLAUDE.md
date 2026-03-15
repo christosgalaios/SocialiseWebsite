@@ -1,3 +1,5 @@
+> **Cross-project rules:** See [`claude-shared`](https://github.com/christosgalaios/claude-shared) repo (`~/.claude/claude-shared/CLAUDE.md`). Run `bash setup.sh` on new machines.
+
 # Socialise. Marketing Website
 
 ## Claude Code Tooling
